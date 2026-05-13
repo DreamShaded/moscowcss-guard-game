@@ -4,7 +4,14 @@
 FROM node:20-alpine AS builder
 WORKDIR /app
 
-# Install deps with reproducible lockfile
+# Proxy build args (declared so Docker auto-propagates them as env to RUN steps).
+# Leave empty for direct internet; set via docker-compose build.args or
+# `docker build --build-arg HTTPS_PROXY=http://127.0.0.1:1081 ...`.
+ARG HTTP_PROXY
+ARG HTTPS_PROXY
+ARG NO_PROXY
+
+# Install deps with reproducible lockfile (npm respects HTTPS_PROXY env).
 COPY package.json package-lock.json* ./
 RUN npm ci
 

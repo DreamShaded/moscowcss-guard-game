@@ -3,7 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      # Use host network so npm inside the builder reaches xray on 127.0.0.1:1081
+      network: host
+      args:
+        HTTP_PROXY: ${BUILD_HTTP_PROXY:-}
+        HTTPS_PROXY: ${BUILD_HTTPS_PROXY:-}
+        NO_PROXY: ${BUILD_NO_PROXY:-localhost,127.0.0.1}
     image: stack-guard:${APP_VERSION:-latest}
+    pull_policy: build
     container_name: stack-guard-app
     restart: unless-stopped
     environment:
