@@ -1,0 +1,31 @@
+services:
+  stack-guard:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: stack-guard:${APP_VERSION:-latest}
+    container_name: stack-guard-app
+    restart: unless-stopped
+    environment:
+      - TZ=${TZ}
+    security_opt:
+      - no-new-privileges:true
+    networks:
+      - traefik_net
+    labels:
+      - "traefik.enable=true"
+
+      - "traefik.http.middlewares.stack-guard-headers.headers.customrequestheaders.X-Forwarded-Port=443"
+      - "traefik.http.middlewares.stack-guard-headers.headers.customrequestheaders.X-Forwarded-Proto=https"
+
+      - "traefik.http.routers.stack-guard.rule=Host(`${APP_DOMAIN}`) || Host(`www.${APP_DOMAIN}`)"
+      - "traefik.http.routers.stack-guard.service=stack-guard"
+      - "traefik.http.routers.stack-guard.entrypoints=websecure"
+      - "traefik.http.routers.stack-guard.tls=true"
+      - "traefik.http.routers.stack-guard.tls.certresolver=mainResolver"
+      - "traefik.http.services.stack-guard.loadbalancer.server.port=80"
+      - "traefik.http.routers.stack-guard.middlewares=stack-guard-headers@docker,redirect-to-https@file,unwww@file"
+
+networks:
+  traefik_net:
+    external: true

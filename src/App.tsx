@@ -14,6 +14,8 @@ function App() {
     setDifficulty,
     randomCount,
     setRandomCount,
+    timerDuration,
+    setTimerDuration,
   } = useStackStore();
 
   return (
@@ -28,6 +30,9 @@ function App() {
           onReroll={reroll}
           randomCount={randomCount}
           onRandomCountChange={setRandomCount}
+          timerActive={selectedIds.length > 0}
+          timerDuration={timerDuration}
+          onTimerDurationChange={setTimerDuration}
         />
       </main>
       <StackPanel

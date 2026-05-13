@@ -5,6 +5,20 @@ import type { CategoryId, Tech } from '../types';
 const STORAGE_KEY = 'stack-guard:selected-v1';
 const DIFFICULTY_KEY = 'stack-guard:difficulty-v2';
 const RANDOM_COUNT_KEY = 'stack-guard:random-count-v1';
+const TIMER_DURATION_KEY = 'stack-guard:timer-duration-v1';
+
+export const DEFAULT_TIMER_SEC = 180;
+
+function loadTimerDuration(): number {
+  try {
+    const raw = localStorage.getItem(TIMER_DURATION_KEY);
+    if (raw === null) return DEFAULT_TIMER_SEC;
+    const n = Number(raw);
+    return Number.isFinite(n) && n > 0 ? Math.round(n) : DEFAULT_TIMER_SEC;
+  } catch {
+    return DEFAULT_TIMER_SEC;
+  }
+}
 
 export type Difficulty = 'simple' | 'advanced' | 'random-strict' | 'random-chaos';
 
@@ -99,6 +113,15 @@ export function useStackStore() {
   const [selectedIds, setSelectedIds] = useState<string[]>(() => loadSelected());
   const [difficulty, setDifficultyState] = useState<Difficulty>(() => loadDifficulty());
   const [randomCount, setRandomCountState] = useState<number>(() => loadRandomCount());
+  const [timerDuration, setTimerDurationState] = useState<number>(() => loadTimerDuration());
+
+  useEffect(() => {
+    try {
+      localStorage.setItem(TIMER_DURATION_KEY, String(timerDuration));
+    } catch {
+      /* ignore quota */
+    }
+  }, [timerDuration]);
 
   useEffect(() => {
     try {
@@ -204,6 +227,11 @@ export function useStackStore() {
     [],
   );
 
+  const setTimerDuration = useCallback((sec: number) => {
+    if (!Number.isFinite(sec) || sec <= 0) return;
+    setTimerDurationState(Math.round(sec));
+  }, []);
+
   return {
     selectedIds,
     isSelected,
@@ -215,5 +243,7 @@ export function useStackStore() {
     setDifficulty,
     randomCount,
     setRandomCount,
+    timerDuration,
+    setTimerDuration,
   };
 }

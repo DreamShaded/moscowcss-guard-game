@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { TECHNOLOGIES } from '../data/technologies';
 import { TechCard } from './tech-card';
 import { DifficultyToggle } from './difficulty-toggle';
+import { CountdownTimer } from './countdown-timer';
 import type { Tech } from '../types';
 import {
   isRandomDifficulty,
@@ -19,6 +20,9 @@ interface Props {
   onReroll: () => void;
   randomCount: number;
   onRandomCountChange: (n: number) => void;
+  timerActive: boolean;
+  timerDuration: number;
+  onTimerDurationChange: (sec: number) => void;
 }
 
 function difficultyHint(d: Difficulty, count: number): string {
@@ -53,6 +57,9 @@ export function ScatteredField({
   onReroll,
   randomCount,
   onRandomCountChange,
+  timerActive,
+  timerDuration,
+  onTimerDurationChange,
 }: Props) {
   const [shuffleKey, setShuffleKey] = useState(0);
   const isRandom = isRandomDifficulty(difficulty);
@@ -84,6 +91,11 @@ export function ScatteredField({
           <p className="mt-1 text-xs text-white/50">{difficultyHint(difficulty, randomCount)}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
+          <CountdownTimer
+            active={timerActive}
+            durationSec={timerDuration}
+            onDurationChange={onTimerDurationChange}
+          />
           <DifficultyToggle value={difficulty} onChange={onDifficultyChange} />
           {isRandom && (
             <div className="flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1">
